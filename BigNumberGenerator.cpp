@@ -1,14 +1,49 @@
 #include <iostream>
+#include <vector>
 #include <NTL/ZZ.h>
 
 using namespace std;
 using namespace NTL;
 
+void generateNumberBBS(int bitLength) {
+	//generate p and q
+	ZZ p, q;
+	do {
+		do {
+			p = GenPrime_ZZ(512);
+		} while (p % 4 != 3);
+		do {
+			q = GenPrime_ZZ(512);
+		} while (q % 4 != 3);
+	} while (p == q);
+
+	cout << p << "\n" << q << "\n";
+	ZZ N = p * q;
+	cout << N << "\n";
+
+	ZZ seed;
+	do {
+		seed = RandomBnd(N);
+	} while (seed % p == 0 || seed % q == 0);
+
+	cout << seed << "\n";
+
+	ZZ randomNumber = (ZZ)0;
+
+	for (int i = 0; i < bitLength; i++) {
+		seed = (seed * seed) % N;
+		randomNumber = (randomNumber << 1) + (seed % 2);
+	}
+
+	cout << randomNumber << "\n";
+}
+
 int main()
 {
 	int choiceMainMenu, choiceBBS, choiceJacobi;
+	ZZ generatedNumberBBS = (ZZ)0;
 
-	choiceMainMenu = 0;
+	choiceMainMenu = -1;
 
 	while (choiceMainMenu != -1) {
 		switch (choiceMainMenu) {
@@ -30,6 +65,8 @@ int main()
 			break;
 		}
 	}
+
+	generateNumberBBS(1024);
 
 	/*c = 0;
 	a = RandomBits_ZZ(512);
