@@ -5,8 +5,7 @@
 using namespace std;
 using namespace NTL;
 
-void generateNumberBBS(int bitLength) {
-	//generate p and q
+ZZ generateNumberBBS(unsigned long bitLength) {
 	ZZ p, q;
 	do {
 		do {
@@ -17,16 +16,12 @@ void generateNumberBBS(int bitLength) {
 		} while (q % 4 != 3);
 	} while (p == q);
 
-	cout << p << "\n" << q << "\n";
 	ZZ N = p * q;
-	cout << N << "\n";
 
 	ZZ seed;
 	do {
 		seed = RandomBnd(N);
 	} while (seed % p == 0 || seed % q == 0);
-
-	cout << seed << "\n";
 
 	ZZ randomNumber = (ZZ)0;
 
@@ -35,15 +30,42 @@ void generateNumberBBS(int bitLength) {
 		randomNumber = (randomNumber << 1) + (seed % 2);
 	}
 
-	cout << randomNumber << "\n";
+	return randomNumber;
+}
+
+void testPercentageBBS(int iterations) {
+	int countZero = 0, countOne = 0, count;
+	ZZ number;
+
+	for (int i = 0; i < iterations; i++) {
+		number = generateNumberBBS(1024);
+		while (number != 0) {
+			switch (bit(number, 0) /*number % 2*/) {
+			case 0:
+				countZero++;
+				break;
+			case 1:
+				countOne++;
+				break;
+			}
+			number >>= 1;
+		}
+	}
+
+	double percentage = 0;
+
+	count = countOne + countZero;
+	percentage = static_cast<double>(countZero) / static_cast<double>(count);
+	cout << "Percentages of\n0: " << percentage * 100 << "%\n1: " << (1 - percentage) * 100 << "%\n";
 }
 
 int main()
 {
 	int choiceMainMenu, choiceBBS, choiceJacobi;
+	unsigned long numberLength = 1024;
 	ZZ generatedNumberBBS = (ZZ)0;
 
-	choiceMainMenu = -1;
+	choiceMainMenu = 1;
 
 	while (choiceMainMenu != -1) {
 		switch (choiceMainMenu) {
@@ -56,8 +78,27 @@ int main()
 				choiceMainMenu = -1;
 			break;
 		case 1:
-			cout << "BBS Generator\n";
-			choiceMainMenu = 0;
+			cout << "BBS Generator\n1. Generate a number\n2. Test the Generator(Percentage of Bits)\n3. Test the Generator(Compresion)\n4. Back\n";
+			do {
+				cin >> choiceBBS;
+			} while (choiceBBS <= 0 || choiceBBS > 4);
+
+			switch (choiceBBS) {
+			case 1:
+				cout << "Input Number's Bit Length\n";
+				cin >> numberLength;
+				cout << generateNumberBBS(numberLength) << "\n";
+				break;
+			case 2:
+				testPercentageBBS(20);
+				break;
+			case 3:
+				break;
+			case 4:
+				choiceMainMenu = 0;
+				break;
+			}
+
 			break;
 		case 2:
 			cout << "Jacobi Generator\n";
@@ -65,8 +106,6 @@ int main()
 			break;
 		}
 	}
-
-	generateNumberBBS(1024);
 
 	/*c = 0;
 	a = RandomBits_ZZ(512);
