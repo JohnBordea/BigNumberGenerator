@@ -86,26 +86,48 @@ ZZ generateNumberJacobi(unsigned long bitLength) {
 	return randomNumber;
 }
 
+ZZ generateNumberJacobi(ZZ n, unsigned long bitLength) {
+	ZZ a;
+	a = RandomBnd(n);
+
+	ZZ randomNumber = (ZZ)0;
+
+	for (int i = 0; i < bitLength; i++) {
+		randomNumber <<= 1;
+		if (jacobiSymbol(a + i, n) != (ZZ)-1)
+			randomNumber += 1;
+	}
+
+	return randomNumber;
+}
+
 void testPercentage(int iterations, int type) {
 	int countZero = 0, countOne = 0, count;
 	ZZ number;
 	ZZ p, q, n;
 
+	switch (type) {
+	case 1:
+		do {
+			do {
+				p = GenPrime_ZZ(512);
+			} while (p % 4 != 3);
+			do {
+				q = GenPrime_ZZ(512);
+			} while (q % 4 != 3);
+		} while (p == q);
+		break;
+	default:
+		n = GenPrime_ZZ(1024);
+	}
+
 	for (int i = 0; i < iterations; i++) {
 		switch (type) {
 		case 1:
-			do {
-				do {
-					p = GenPrime_ZZ(512);
-				} while (p % 4 != 3);
-				do {
-					q = GenPrime_ZZ(512);
-				} while (q % 4 != 3);
-			} while (p == q);
 			number = generateNumberBBS(p, q, 1024);
 			break;
 		default:
-			number = generateNumberBBS(1024);
+			number = generateNumberJacobi(n, 1024);
 		}
 		while (number != 0) {
 			switch (bit(number, 0) /*number % 2*/) {
@@ -158,7 +180,7 @@ int main()
 				cout << generateNumberBBS(numberLength) << "\n";
 				break;
 			case 2:
-				testPercentage(20, 1);
+				testPercentage(40, 1);
 				break;
 			case 3:
 				choiceMainMenu = 0;
